@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { ObjectId } from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+import authUtils from '../utils/auth';
 
 class AuthController {
   static async getConnect(req, res) {
@@ -26,11 +26,11 @@ class AuthController {
 
   static async getDisconnect(req, res) {
     const key = `auth_${req.get('X-Token')}`;
-    const users = await dbClient.database.collection('users');
+    const result = await authUtils.authCheck(req);
 
-    const userId = await redisClient.get(key);
-    const user = await users.findOne({ _id: new ObjectId(userId) });
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    if (result.status === 400) {
+      res.status(result.status).json(result.payload);
+    }
 
     await redisClient.del(key);
     return res.status(200).json();

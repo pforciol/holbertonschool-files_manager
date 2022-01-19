@@ -1,7 +1,6 @@
 import { createHash } from 'crypto';
-import { ObjectId } from 'mongodb';
+import authUtils from '../utils/auth';
 import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
 
 class UsersController {
   static async postNew(req, res) {
@@ -22,14 +21,8 @@ class UsersController {
   }
 
   static async getMe(req, res) {
-    const users = await dbClient.database.collection('users');
-    const key = `auth_${req.get('X-Token')}`;
-
-    const userId = await redisClient.get(key);
-    const user = await users.findOne({ _id: new ObjectId(userId) });
-    if (!user) return res.status(401).json({ error: 'Unauthorized' });
-
-    return res.json({ id: user._id, email: user.email });
+    const result = await authUtils.authCheck(req);
+    return res.status(result.status).json(result.payload);
   }
 }
 
