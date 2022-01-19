@@ -29,7 +29,7 @@ class AuthController {
     const result = await authUtils.authCheck(req);
 
     if (result.status === 400) {
-      res.status(result.status).json(result.payload);
+      return res.status(result.status).json(result.payload);
     }
 
     await redisClient.del(key);
