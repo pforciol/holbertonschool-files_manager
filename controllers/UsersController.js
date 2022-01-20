@@ -7,22 +7,22 @@ class UsersController {
     const { email, password } = req.body;
     const users = await dbClient.database.collection('users');
 
-    if (!email) return res.status(400).json({ error: 'Missing email' });
-    if (!password) return res.status(400).json({ error: 'Missing password' });
+    if (!email) return res.status(400).send({ error: 'Missing email' });
+    if (!password) return res.status(400).send({ error: 'Missing password' });
 
     const existingUser = await users.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: 'Already exist' });
+    if (existingUser) return res.status(400).send({ error: 'Already exist' });
 
     const hashedPwd = createHash('sha1').update(password).digest('hex');
     const newUserData = { email, password: hashedPwd };
     const result = await users.insertOne(newUserData);
 
-    return res.status(201).json({ id: result.insertedId, email });
+    return res.status(201).send({ id: result.insertedId, email });
   }
 
   static async getMe(req, res) {
     const result = await authUtils.authCheck(req);
-    return res.status(result.status).json(result.payload);
+    return res.status(result.status).send(result.payload);
   }
 }
 

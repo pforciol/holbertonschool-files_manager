@@ -9,7 +9,7 @@ class AppController {
   }
 
   static async getStats(req, res) {
-    return res.status(200).json({
+    return res.status(200).send({
       users: await dbClient.nbUsers(),
       files: await dbClient.nbFiles(),
     });
