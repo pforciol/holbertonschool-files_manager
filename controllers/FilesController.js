@@ -5,10 +5,10 @@ class FilesController {
     const result = await authUtils.authCheck(req);
 
     if (result.status === 400) {
-      return res.status(result.status).json(result.payload);
+      return res.status(result.status).send(result.payload);
     }
 
-    return res.json('Youpi');
+    return res.send('Youpi');
   }
 }
 

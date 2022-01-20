@@ -16,12 +16,12 @@ class AuthController {
 
     const hashedPwd = createHash('sha1').update(password).digest('hex');
     const existingUser = await users.findOne({ email, password: hashedPwd });
-    if (!existingUser) return res.status(401).json({ error: 'Unauthorized' });
+    if (!existingUser) return res.status(401).send({ error: 'Unauthorized' });
 
     const token = uuidv4();
     await redisClient.set(`auth_${token}`, existingUser._id, 24 * 60 * 60);
 
-    return res.status(200).json({ token });
+    return res.status(200).send({ token });
   }
 
   static async getDisconnect(req, res) {
@@ -29,11 +29,11 @@ class AuthController {
     const result = await authUtils.authCheck(req);
 
     if (result.status === 400) {
-      return res.status(result.status).json(result.payload);
+      return res.status(result.status).send(result.payload);
     }
 
     await redisClient.del(key);
-    return res.status(200).json();
+    return res.status(200).send();
   }
 }
 
